@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, X, MessageCircle, Minimize2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { supabase } from "../../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
 interface Message {
   id: number;
@@ -174,8 +174,14 @@ export function FloatingChatbot() {
   
   // Save message to Supabase
   const saveMessageToDatabase = async (message: string, sender: 'user' | 'bot') => {
+    // Skip if Supabase is not configured
+    if (!isSupabaseConfigured()) {
+      console.log('Chat message (demo mode):', { sender, message: message.substring(0, 50) });
+      return;
+    }
+    
     try {
-      await supabase.from('chat_messages').insert({
+      await supabase!.from('chat_messages').insert({
         session_id: sessionId,
         message: message,
         sender: sender,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Mail, CheckCircle2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { supabase } from "../../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
@@ -15,9 +15,21 @@ export function Newsletter() {
     setIsLoading(true);
     setError("");
     
+    // If Supabase is not configured, simulate success
+    if (!isSupabaseConfigured()) {
+      console.log('Newsletter subscription (demo mode):', email);
+      setTimeout(() => {
+        setSubmitted(true);
+        setIsLoading(false);
+        setEmail("");
+        setTimeout(() => setSubmitted(false), 5000);
+      }, 1000);
+      return;
+    }
+    
     try {
       // Check if email already exists
-      const { data: existing } = await supabase
+      const { data: existing } = await supabase!
         .from('newsletter_subscribers')
         .select('email')
         .eq('email', email)
@@ -30,7 +42,7 @@ export function Newsletter() {
       }
       
       // Insert new subscriber
-      const { error: insertError } = await supabase
+      const { error: insertError } = await supabase!
         .from('newsletter_subscribers')
         .insert([
           {

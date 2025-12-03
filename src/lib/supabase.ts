@@ -4,13 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+// Create Supabase client (or null if credentials not provided)
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Helper to check if Supabase is configured
+export const isSupabaseConfigured = () => !!supabase;
 
 // Database types
 export interface MeetingBooking {
